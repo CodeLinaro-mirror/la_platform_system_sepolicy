@@ -75,7 +75,7 @@ allow {
 } binder_device:chr_file rw_file_perms;
 # Devices which are not full TREBLE have fewer restrictions on access to /dev/binder
 not_full_treble(`allow { domain -hwservicemanager -vndservicemanager } binder_device:chr_file rw_file_perms;')
-allow { domain -servicemanager -vndservicemanager } hwbinder_device:chr_file rw_file_perms;
+allow { domain -servicemanager -vndservicemanager -isolated_app } hwbinder_device:chr_file rw_file_perms;
 allow domain ptmx_device:chr_file rw_file_perms;
 allow domain alarm_device:chr_file r_file_perms;
 allow domain random_device:chr_file rw_file_perms;
@@ -219,6 +219,9 @@ allow { domain -domain } hwservice_manager_type:hwservice_manager { add find };
 # when it's not explicitly used in allow rules
 allow { domain -domain } vndservice_manager_type:service_manager { add find };
 
+# Under ASAN, processes will try to read /data, as the sanitized libraries are there.
+with_asan(`allow domain system_data_file:dir getattr;')
+
 ###
 ### neverallow rules
 ###
@@ -352,7 +355,6 @@ neverallow {
     -dumpstate
     -shell
     userdebug_or_eng(`-su')
-    -system_server
     -webview_zygote
     -zygote
 } {
@@ -451,6 +453,7 @@ neverallow {
   -adbd
   -dumpstate
   -hal_drm
+  -hal_cas
   -init
   -mediadrmserver
   -recovery
@@ -489,6 +492,7 @@ neverallow { domain -install_recovery -recovery } recovery_block_device:blk_file
 neverallow {
   domain
   userdebug_or_eng(`-domain') # exclude debuggable builds
+  -hal_bootctl
   -init
   -uncrypt
   -update_engine
@@ -536,7 +540,6 @@ full_treble_only(`
     -cameraserver_service
     -drmserver_service
     -keystore_service
-    -mediacasserver_service
     -mediadrmserver_service
     -mediaextractor_service
     -mediametrics_service
@@ -769,14 +772,19 @@ neverallow {
   # Processes that can't exec crash_dump
   -mediacodec
   -mediaextractor
-} tombstoned:unix_stream_socket connectto;
+} tombstoned_crash_socket:unix_stream_socket connectto;
+
 neverallow {
   domain
   -crash_dump
   -mediacodec
   -mediaextractor
 } tombstoned_crash_socket:sock_file write;
+
+# Never allow anyone except dumpstate or the system server to connect or write to
+# the tombstoned intercept socket.
 neverallow { domain -dumpstate -system_server } tombstoned_intercept_socket:sock_file write;
+neverallow { domain -dumpstate -system_server } tombstoned_intercept_socket:unix_stream_socket connectto;
 
 # Android does not support System V IPCs.
 #
