@@ -2,7 +2,7 @@
 type init, domain, mlstrustedsubject;
 
 # The init domain is entered by execing init.
-type init_exec, exec_type, file_type;
+type init_exec, system_file_type, exec_type, file_type;
 
 # /dev/__null__ node created by init.
 allow init tmpfs:chr_file { create setattr unlink rw_file_perms };
@@ -20,7 +20,7 @@ userdebug_or_eng(`
 # /dev/__properties__
 allow init properties_device:dir relabelto;
 allow init properties_serial:file { write relabelto };
-allow init property_type:file { create_file_perms relabelto };
+allow init property_type:file { append create getattr map open read relabelto rename setattr unlink write };
 # /dev/__properties__/property_info
 allow init properties_device:file create_file_perms;
 allow init property_info:file relabelto;
@@ -80,6 +80,9 @@ allow init fs_bpf:dir mounton;
 # Mount on /dev/usb-ffs/adb.
 allow init device:dir mounton;
 
+# Mount tmpfs on /apex
+allow init apex_mnt_dir:dir mounton;
+
 # Create and remove symlinks in /.
 allow init rootfs:lnk_file { create unlink };
 
@@ -105,7 +108,7 @@ allow init metadata_file:dir mounton;
 allow init tmpfs:dir relabelfrom;
 
 # Create directories under /dev/cpuctl after chowning it to system.
-allow init self:global_capability_class_set dac_override;
+allow init self:global_capability_class_set { dac_override dac_read_search };
 
 # Set system clock.
 allow init self:global_capability_class_set sys_time;
@@ -147,7 +150,7 @@ allow init {
   -nativetest_data_file
   -privapp_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
 }:dir { create search getattr open read setattr ioctl };
 
@@ -155,13 +158,14 @@ allow init {
   file_type
   -app_data_file
   -exec_type
+  -iorapd_data_file
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:dir { write add_name remove_name rmdir relabelfrom };
@@ -170,6 +174,7 @@ allow init {
   file_type
   -app_data_file
   -exec_type
+  -iorapd_data_file
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
@@ -177,7 +182,7 @@ allow init {
   -runtime_event_log_tags_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:file { create getattr open read write setattr relabelfrom unlink map };
@@ -186,13 +191,14 @@ allow init {
   file_type
   -app_data_file
   -exec_type
+  -iorapd_data_file
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:{ sock_file fifo_file } { create getattr open read setattr relabelfrom unlink };
@@ -201,20 +207,21 @@ allow init {
   file_type
   -app_data_file
   -exec_type
+  -iorapd_data_file
   -keystore_data_file
   -misc_logd_file
   -nativetest_data_file
   -privapp_data_file
   -shell_data_file
   -system_app_data_file
-  -system_file
+  -system_file_type
   -vendor_file_type
   -vold_data_file
 }:lnk_file { create getattr setattr relabelfrom unlink };
 
 allow init cache_file:lnk_file r_file_perms;
 
-allow init { file_type -system_file -vendor_file_type -exec_type }:dir_file_class_set relabelto;
+allow init { file_type -system_file_type -vendor_file_type -exec_type }:dir_file_class_set relabelto;
 # does init really need to relabel app data?
 userdebug_or_eng(`auditallow init { app_data_file privapp_data_file }:dir_file_class_set relabelto;')
 allow init { sysfs debugfs debugfs_tracing debugfs_tracing_debug }:{ dir file lnk_file } { getattr relabelfrom };
@@ -234,6 +241,7 @@ allow init debugfs_wifi_tracing:file w_file_perms;
 allow init {
   fs_type
   -contextmount_type
+  -keychord_device
   -proc_type
   -sdcard_type
   -sysfs_type
@@ -245,11 +253,12 @@ allow init { fs_type -contextmount_type -sdcard_type -rootfs }:dir  { open read 
 # TODO: auditing to see if this can be deleted entirely
 allow init {
   dev_type
+  -keychord_device
   -kmem_device
   -port_device
   -device
   -vndbinder_device
-  }:chr_file { read open };
+}:chr_file { read open };
 auditallow init {
   dev_type
   -alarm_device
@@ -262,7 +271,6 @@ auditallow init {
   -hwbinder_device
   -hw_random_device
   -input_device
-  -keychord_device
   -kmem_device
   -kmsg_device
   -null_device
@@ -274,7 +282,12 @@ auditallow init {
 }:chr_file { read open };
 
 # chown/chmod on devices.
-allow init { dev_type -kmem_device -port_device }:chr_file setattr;
+allow init {
+  dev_type
+  -keychord_device
+  -kmem_device
+  -port_device
+}:chr_file setattr;
 
 # Unlabeled file access for upgrades from 4.2.
 allow init unlabeled:dir { create_dir_perms relabelfrom };
@@ -288,9 +301,9 @@ allow init self:global_capability2_class_set syslog;
 # init access to /proc.
 r_dir_file(init, proc_net_type)
 
-# Overlayfs workdir write access check during mount to permit remount,rw
 userdebug_or_eng(`
-  allow init overlayfs_file:dir { relabelfrom write };
+  # Overlayfs workdir write access check during mount to permit remount,rw
+  allow init overlayfs_file:dir { relabelfrom mounton write };
 ')
 
 allow init {
@@ -464,9 +477,7 @@ allow init hw_random_device:chr_file r_file_perms;
 # only ever accessed by init.
 allow init device:file create_file_perms;
 
-# keychord configuration
-allow init self:global_capability_class_set sys_tty_config;
-allow init keychord_device:chr_file rw_file_perms;
+# keychord retrieval from /dev/input/ devices
 allow init input_device:dir r_dir_perms;
 allow init input_device:chr_file rw_file_perms;
 
@@ -489,6 +500,12 @@ allow init init:key { write search setattr };
 # Allow init to create /data/unencrypted
 allow init unencrypted_data_file:dir create_dir_perms;
 
+# Set encryption policy on dirs in /data
+allowxperm init data_file_type:dir ioctl {
+  FS_IOC_GET_ENCRYPTION_POLICY
+  FS_IOC_SET_ENCRYPTION_POLICY
+};
+
 # Allow init to write to /proc/sys/vm/overcommit_memory
 allow init proc_overcommit_memory:file { write };
 
@@ -508,6 +525,14 @@ allow init vendor_shell_exec:file execute;
 allow init vold_metadata_file:dir create_dir_perms;
 allow init vold_metadata_file:file getattr;
 
+# Allow init to use binder
+binder_use(init);
+allow init apex_service:service_manager find;
+# Allow servicemanager to pass it
+allow servicemanager init:binder transfer;
+# Allow calls from init to apexd
+allow init apexd:binder call;
+
 ###
 ### neverallow rules
 ###
@@ -525,8 +550,11 @@ neverallow init { app_data_file privapp_data_file }:lnk_file read;
 # init should never execute a program without changing to another domain.
 neverallow init { file_type fs_type }:file execute_no_trans;
 
-# Init never adds or uses services via service_manager.
-neverallow init service_manager_type:service_manager { add find };
+# init can only find the APEX service
+neverallow init { service_manager_type -apex_service }:service_manager { find };
+# init can never add binder services
+neverallow init service_manager_type:service_manager { add };
+# init can never list binder services
 neverallow init servicemanager:service_manager list;
 
 # Init should not be creating subdirectories in /data/local/tmp
@@ -534,3 +562,6 @@ neverallow init shell_data_file:dir { write add_name remove_name };
 
 # Init should not access sysfs node that are not explicitly labeled.
 neverallow init sysfs:file { open read write };
+
+# No domain should be allowed to ptrace init.
+neverallow * init:process ptrace;

@@ -36,6 +36,7 @@ type firstboot_prop, property_type;
 type hwservicemanager_prop, property_type;
 type last_boot_reason_prop, property_type;
 type system_lmk_prop, property_type;
+type llkd_prop, property_type;
 type logd_prop, property_type, core_property_type;
 type logpersistd_logging_prop, property_type;
 type log_prop, property_type, log_property_type;
@@ -99,6 +100,12 @@ allow property_type tmpfs:filesystem associate;
 ###
 ### Neverallow rules
 ###
+
+# There is no need to perform ioctl or advisory locking operations on
+# property files. If this neverallow is being triggered, it is
+# likely that the policy is using r_file_perms directly instead of
+# the get_prop() macro.
+neverallow domain property_type:file { ioctl lock };
 
 # core_property_type should not be used for new properties or
 # device specific properties. Properties with this attribute

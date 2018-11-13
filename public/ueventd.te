@@ -5,7 +5,7 @@ type ueventd, domain;
 # Write to /dev/kmsg.
 allow ueventd kmsg_device:chr_file rw_file_perms;
 
-allow ueventd self:global_capability_class_set { chown mknod net_admin setgid fsetid sys_rawio dac_override fowner };
+allow ueventd self:global_capability_class_set { chown mknod net_admin setgid fsetid sys_rawio dac_override dac_read_search fowner };
 allow ueventd device:file create_file_perms;
 
 r_dir_file(ueventd, rootfs)
@@ -70,3 +70,6 @@ neverallow ueventd dev_type:blk_file ~{ getattr relabelfrom relabelto create set
 
 # Only relabelto as we would never want to relabelfrom kmem_device or port_device
 neverallow ueventd { kmem_device port_device }:chr_file ~{ getattr create setattr unlink relabelto };
+
+# Nobody should be able to ptrace ueventd
+neverallow * ueventd:process ptrace;
