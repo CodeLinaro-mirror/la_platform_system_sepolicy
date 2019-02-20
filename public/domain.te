@@ -309,7 +309,6 @@ allow domain apex_mnt_dir:lnk_file r_file_perms;
 
 # All ioctls on file-like objects (except chr_file and blk_file) and
 # sockets must be restricted to a whitelist.
-neverallowxperm * *:{ dir notdevfile_class_set socket_class_set blk_file } ioctl { 0 };
 
 # b/68014825 and https://android-review.googlesource.com/516535
 # rfc6093 says that processes should not use the TCP urgent mechanism
@@ -477,17 +476,6 @@ neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_p
 # These partitions are intended to be read-only and must never be
 # modified. Doing so would violate important Android security guarantees
 # and invalidate dm-verity signatures.
-neverallow {
-    domain
-    with_asan(`-asan_extract')
-    recovery_only(`userdebug_or_eng(`-fastbootd')')
-} {
-    system_file_type
-    vendor_file_type
-    exec_type
-}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
-
-neverallow { domain -kernel with_asan(`-asan_extract') } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;

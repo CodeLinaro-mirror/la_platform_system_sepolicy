@@ -102,21 +102,6 @@ neverallow {
 
 # Only the following processes should be directly accessing private app
 # directories.
-neverallow {
-  domain
-  -adbd
-  -appdomain
-  -app_zygote
-  -dexoptanalyzer
-  -installd
-  userdebug_or_eng(`-perfprofd')
-  -profman
-  -rs # spawned by appdomain, so carryover the exception above
-  -runas
-  -system_server
-  -viewcompiler
-} { privapp_data_file app_data_file }:dir *;
-
 # Only apps should be modifying app data. installd is exempted for
 # restorecon and package install/uninstall.
 neverallow {
@@ -126,14 +111,6 @@ neverallow {
   -rs # spawned by appdomain, so carryover the exception above
 } { privapp_data_file app_data_file }:dir ~r_dir_perms;
 
-neverallow {
-  domain
-  -appdomain
-  -app_zygote
-  -installd
-  userdebug_or_eng(`-perfprofd')
-  -rs # spawned by appdomain, so carryover the exception above
-} { privapp_data_file app_data_file }:file_class_set open;
 
 neverallow {
   domain
