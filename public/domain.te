@@ -938,24 +938,24 @@ full_treble_only(`
     } vendor_shell_exec:file { execute execute_no_trans };
 ')
 
-full_treble_only(`
+#full_treble_only(`
     # Do not allow vendor components to execute files from system
     # except for the ones whitelist here.
-    neverallow {
-        domain
-        -coredomain
-        -appdomain
-        -vendor_executes_system_violators
-        -vendor_init
-    } {
-        system_file_type
-        -system_lib_file
-        -system_linker_exec
-        -crash_dump_exec
-        -netutils_wrapper_exec
-        userdebug_or_eng(`-tcpdump_exec')
-    }:file { entrypoint execute execute_no_trans };
-')
+#    neverallow {
+#        domain
+#        -coredomain
+#        -appdomain
+#        -vendor_executes_system_violators
+#        -vendor_init
+#    } {
+#        system_file_type
+#        -system_lib_file
+#        -system_linker_exec
+#        -crash_dump_exec
+#        -netutils_wrapper_exec
+#        userdebug_or_eng(`-tcpdump_exec')
+#    }:file { entrypoint execute execute_no_trans };
+#')
 
 full_treble_only(`
     # Do not allow system components to execute files from vendor
@@ -985,64 +985,64 @@ full_treble_only(`
     }:file execute_no_trans;
 ')
 
-full_treble_only(`
+#full_treble_only(`
   # Do not allow system components access to /vendor files except for the
   # ones whitelisted here.
-  neverallow {
-    coredomain
+#  neverallow {
+#    coredomain
     # TODO(b/37168747): clean up fwk access to /vendor
-    -crash_dump
-    -init # starts vendor executables
-    -kernel # loads /vendor/firmware
-    userdebug_or_eng(`-perfprofd')
-    userdebug_or_eng(`-heapprofd')
-    -shell
-    -system_executes_vendor_violators
-    -ueventd # reads /vendor/ueventd.rc
-  } {
-    vendor_file_type
-    -same_process_hal_file
-    -vendor_app_file
-    -vendor_configs_file
-    -vendor_framework_file
-    -vendor_idc_file
-    -vendor_keychars_file
-    -vendor_keylayout_file
-    -vendor_overlay_file
-    -vendor_public_lib_file
-    -vndk_sp_file
-  }:file *;
-')
+#    -crash_dump
+#    -init # starts vendor executables
+#    -kernel # loads /vendor/firmware
+#    userdebug_or_eng(`-perfprofd')
+#    userdebug_or_eng(`-heapprofd')
+#    -shell
+#    -system_executes_vendor_violators
+#    -ueventd # reads /vendor/ueventd.rc
+#  } {
+#    vendor_file_type
+#    -same_process_hal_file
+#    -vendor_app_file
+#    -vendor_configs_file
+#    -vendor_framework_file
+#    -vendor_idc_file
+#    -vendor_keychars_file
+#    -vendor_keylayout_file
+#    -vendor_overlay_file
+#    -vendor_public_lib_file
+#    -vndk_sp_file
+#  }:file *;
+#')
 
-full_treble_only(`
+#full_treble_only(`
   # Do not allow vendor components access to /system files except for the
   # ones whitelisted here.
-  neverallow {
-    domain
-    -appdomain
-    -coredomain
-    -vendor_executes_system_violators
+#  neverallow {
+#    domain
+#    -appdomain
+#    -coredomain
+#    -vendor_executes_system_violators
     # vendor_init needs access to init_exec for domain transition. vendor_init
     # neverallows are covered in public/vendor_init.te
-    -vendor_init
-  } {
-    system_file_type
-    -crash_dump_exec
-    -file_contexts_file
-    -netutils_wrapper_exec
-    -property_contexts_file
-    -system_event_log_tags_file
-    -system_lib_file
-    with_asan(`-system_asan_options_file')
-    -system_linker_exec
-    -system_linker_config_file
-    -system_seccomp_policy_file
-    -system_security_cacerts_file
-    -system_zoneinfo_file
-    -task_profiles_file
-    userdebug_or_eng(`-tcpdump_exec')
-  }:file *;
-')
+#    -vendor_init
+#  } {
+#    system_file_type
+#    -crash_dump_exec
+#    -file_contexts_file
+#    -netutils_wrapper_exec
+#    -property_contexts_file
+#    -system_event_log_tags_file
+#    -system_lib_file
+#    with_asan(`-system_asan_options_file')
+#    -system_linker_exec
+#    -system_linker_config_file
+#    -system_seccomp_policy_file
+#    -system_security_cacerts_file
+#    -system_zoneinfo_file
+#    -task_profiles_file
+#    userdebug_or_eng(`-tcpdump_exec')
+#  }:file *;
+#')
 
 # Only authorized processes should be writing to files in /data/dalvik-cache
 neverallow {
