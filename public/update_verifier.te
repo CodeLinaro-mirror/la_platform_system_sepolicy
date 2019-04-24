@@ -22,10 +22,15 @@ allow update_verifier sysfs_dm:file r_file_perms;
 allow update_verifier dm_device:blk_file r_file_perms;
 
 # Write to kernel message.
-allow update_verifier kmsg_device:chr_file w_file_perms;
+allow update_verifier kmsg_device:chr_file { getattr w_file_perms };
 
 # Allow update_verifier to reboot the device.
 set_prop(update_verifier, powerctl_prop)
 
 # Use Boot Control HAL
 hal_client_domain(update_verifier, hal_bootctl)
+
+# Access Checkpoint commands over binder
+allow update_verifier vold_service:service_manager find;
+binder_call(update_verifier, servicemanager)
+binder_call(update_verifier, vold)
