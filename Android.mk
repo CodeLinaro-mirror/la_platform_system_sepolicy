@@ -1310,6 +1310,14 @@ all_fc_args := $(foreach file, $(all_fc_files), -f $(file))
 
 # Tests for Treble compatibility of current platform policy and vendor policy of
 # given release version.
+version_under_treble_tests := 26.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
+
+version_under_treble_tests := 27.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
+
+version_under_treble_tests := 28.0
+include $(LOCAL_PATH)/treble_sepolicy_tests_for_release.mk
 
 BASE_PLAT_PUBLIC_POLICY :=
 BASE_PLAT_PRIVATE_POLICY :=
