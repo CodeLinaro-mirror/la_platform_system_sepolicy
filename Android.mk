@@ -195,6 +195,7 @@ LOCAL_REQUIRED_MODULES += \
     $(addsuffix .cil,$(PLATFORM_SEPOLICY_COMPAT_VERSIONS)) \
     plat_pub_versioned.cil \
     vendor_sepolicy.cil \
+    early_sepolicy.cil \
     plat_sepolicy.cil \
     plat_and_mapping_sepolicy.cil.sha256 \
     secilc \
@@ -202,7 +203,7 @@ LOCAL_REQUIRED_MODULES += \
 
 # Include precompiled policy, unless told otherwise
 ifneq ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
-LOCAL_REQUIRED_MODULES += precompiled_sepolicy precompiled_sepolicy.plat_and_mapping.sha256
+LOCAL_REQUIRED_MODULES += precompiled_sepolicy precompiled_early_sepolicy precompiled_sepolicy.plat_and_mapping.sha256
 endif
 else
 # The following files are only allowed for non-Treble devices.
@@ -282,7 +283,7 @@ $(sepolicy_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
 $(sepolicy_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
 $(sepolicy_policy.conf): PRIVATE_SEPOLICY_SPLIT := $(PRODUCT_SEPOLICY_SPLIT)
 $(sepolicy_policy.conf): $(call build_policy, $(sepolicy_build_files), \
-$(PLAT_PUBLIC_POLICY) $(PLAT_PRIVATE_POLICY) $(PLAT_VENDOR_POLICY) $(BOARD_SEPOLICY_DIRS))
+$(PLAT_PUBLIC_POLICY) $(PLAT_PRIVATE_POLICY) $(PLAT_VENDOR_POLICY) $(BOARD_SEPOLICY_DIRS) $(BOARD_EARLY_EXTRA_SEPOLICY_DIRS))
 	$(transform-policy-to-conf)
 	$(hide) sed '/dontaudit/d' $@ > $@.dontaudit
 
@@ -571,6 +572,52 @@ vendor_policy.conf :=
 #################################
 include $(CLEAR_VARS)
 
+# vendor_policy.cil - the vendor sepolicy. This needs attributization and to be combined
+# with the platform-provided policy.  It makes use of the reqd_policy_mask files from private
+# policy and the platform public policy files in order to use checkpolicy.
+LOCAL_MODULE := early_sepolicy.cil
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+early_extra_policy.conf := $(intermediates)/early_extra_policy.conf
+$(early_extra_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
+$(early_extra_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(early_extra_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
+$(early_extra_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
+$(early_extra_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
+$(early_extra_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
+$(early_extra_policy.conf): PRIVATE_SEPOLICY_SPLIT := $(PRODUCT_SEPOLICY_SPLIT)
+$(early_extra_policy.conf): PRIVATE_COMPATIBLE_PROPERTY := $(PRODUCT_COMPATIBLE_PROPERTY)
+$(early_extra_policy.conf): $(call build_policy, $(sepolicy_build_files), \
+$(PLAT_PUBLIC_POLICY) $(REQD_MASK_POLICY) $(PLAT_VENDOR_POLICY) $(BOARD_EARLY_EXTRA_SEPOLICY_DIRS))
+	$(transform-policy-to-conf)
+	$(hide) sed '/dontaudit/d' $@ > $@.dontaudit
+
+$(LOCAL_BUILT_MODULE): PRIVATE_POL_CONF := $(early_extra_policy.conf)
+$(LOCAL_BUILT_MODULE): PRIVATE_REQD_MASK := $(reqd_policy_mask.cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_BASE_CIL := $(plat_pub_policy.cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_VERS := $(BOARD_SEPOLICY_VERS)
+$(LOCAL_BUILT_MODULE): PRIVATE_DEP_CIL_FILES := $(built_plat_cil) $(built_plat_pub_vers_cil) $(built_mapping_cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_FILTER_CIL := $(built_plat_pub_vers_cil)
+$(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/build_sepolicy \
+  $(early_extra_policy.conf) $(reqd_policy_mask.cil) $(plat_pub_policy.cil) \
+  $(built_plat_cil) $(built_plat_pub_vers_cil) $(built_mapping_cil)
+	@mkdir -p $(dir $@)
+	$(hide) $(HOST_OUT_EXECUTABLES)/build_sepolicy -a $(HOST_OUT_EXECUTABLES) build_cil \
+		-i $(PRIVATE_POL_CONF) -m $(PRIVATE_REQD_MASK) -c $(CHECKPOLICY_ASAN_OPTIONS) \
+		-b $(PRIVATE_BASE_CIL) -d $(PRIVATE_DEP_CIL_FILES) -f $(PRIVATE_FILTER_CIL) \
+		-t $(PRIVATE_VERS) -p $(POLICYVERS) -o $@
+
+built_early_extra_cil := $(LOCAL_BUILT_MODULE)
+early_extra_policy.conf :=
+
+#################################
+include $(CLEAR_VARS)
+
 # odm_policy.cil - the odm sepolicy. This needs attributization and to be combined
 # with the platform-provided policy.  It makes use of the reqd_policy_mask files from private
 # policy and the platform public policy files in order to use checkpolicy.
@@ -650,6 +697,34 @@ $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc $(all_cil_files) $(built_s
 		$(PRIVATE_CIL_FILES) -o $@ -f /dev/null
 
 built_precompiled_sepolicy := $(LOCAL_BUILT_MODULE)
+all_cil_files :=
+
+#################################
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := precompiled_early_sepolicy
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_PROPRIETARY_MODULE := true
+
+LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+all_cil_files := \
+    $(built_plat_cil) \
+    $(built_mapping_cil) \
+    $(built_plat_pub_vers_cil) \
+    $(built_vendor_cil) \
+    $(built_early_extra_cil)
+
+$(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := $(all_cil_files)
+$(LOCAL_BUILT_MODULE): PRIVATE_NEVERALLOW_ARG := $(NEVERALLOW_ARG)
+$(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc $(all_cil_files) $(built_sepolicy_neverallows)
+	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $(PRIVATE_NEVERALLOW_ARG) \
+		$(PRIVATE_CIL_FILES) -o $@ -f /dev/null
+
+built_precompiled_early_sepolicy := $(LOCAL_BUILT_MODULE)
 all_cil_files :=
 
 #################################
