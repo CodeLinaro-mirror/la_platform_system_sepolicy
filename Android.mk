@@ -782,7 +782,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := early_sepolicy.cil
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
-LOCAL_PROPRIETARY_MODULE := true
+LOCAL_VENDOR_MODULE := true
 LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
 
 include $(BUILD_SYSTEM)/base_rules.mk
@@ -999,7 +999,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := precompiled_early_sepolicy
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
-LOCAL_PROPRIETARY_MODULE := true
+LOCAL_VENDOR_MODULE := true
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
 
