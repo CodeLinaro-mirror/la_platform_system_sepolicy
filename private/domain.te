@@ -93,6 +93,10 @@ neverallow {
   -storaged
   -system_server
   userdebug_or_eng(`-perfprofd')
+  -b2g
+  -b2gkillerd
+  -gonkservices
+  -api-daemon
 } self:global_capability_class_set sys_ptrace;
 
 # Limit ability to generate hardware unique device ID attestations to priv_apps
@@ -107,8 +111,8 @@ neverallow {
 
 # System_server owns dropbox data, and init creates/restorecons the directory
 # Disallow direct access by other processes.
-neverallow { domain -init -system_server } dropbox_data_file:dir *;
-neverallow { domain -init -system_server } dropbox_data_file:file ~{ getattr read };
+neverallow { domain -init -system_server -b2g } dropbox_data_file:dir *;
+neverallow { domain -init -system_server -b2g } dropbox_data_file:file ~{ getattr read };
 
 ###
 # Services should respect app sandboxes
@@ -133,6 +137,7 @@ neverallow {
   -runas
   -system_server
   -viewcompiler
+  -b2g
 } { privapp_data_file app_data_file }:dir *;
 
 # Only apps should be modifying app data. installd is exempted for
@@ -142,6 +147,7 @@ neverallow {
   -appdomain
   -installd
   -rs # spawned by appdomain, so carryover the exception above
+  -b2g
 } { privapp_data_file app_data_file }:dir ~r_dir_perms;
 
 neverallow {
@@ -168,8 +174,8 @@ neverallow {
 # that these files cannot be accessed by other domains to ensure that the files
 # do not change between system_server staging the files and apexd processing
 # the files.
-neverallow { domain -init -system_server -apexd -installd} staging_data_file:dir *;
-neverallow { domain -init -system_app -system_server -apexd -kernel -installd } staging_data_file:file *;
+neverallow { domain -init -system_server -apexd -installd -b2g } staging_data_file:dir *;
+neverallow { domain -init -system_app -system_server -apexd -kernel -installd -b2g } staging_data_file:file *;
 neverallow { domain -init -system_server -installd} staging_data_file:dir no_w_dir_perms;
 # apexd needs the link and unlink permissions, so list every `no_w_file_perms`
 # except for `link` and `unlink`.
@@ -202,6 +208,8 @@ neverallow {
     -zygote
     userdebug_or_eng(`-mediaextractor')
     userdebug_or_eng(`-mediaswcodec')
+    -api-daemon
+    -child-daemon
 } {
     file_type
     -system_file_type
@@ -244,6 +252,7 @@ neverallow {
   -otapreopt_slot
   -art_apex_boot_integrity
   -art_apex_postinstall
+  -b2g
 } dalvikcache_data_file:dir no_w_dir_perms;
 
 # Minimize dac_override and dac_read_search.
@@ -271,6 +280,13 @@ define(`dac_override_allowed', `{
   vold
   vold_prepare_subdirs
   zygote
+  b2g
+  api-daemon
+  child-daemon
+  fakeappops
+  gonksched
+  b2gkillerd
+  gonkservices
 }')
 neverallow ~dac_override_allowed self:global_capability_class_set dac_override;
 # Since the kernel checks dac_read_search before dac_override, domains that

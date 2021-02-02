@@ -624,7 +624,7 @@ define(`add_service', `
 define(`add_hwservice', `
   allow $1 $2:hwservice_manager { add find };
   allow $1 hidl_base_hwservice:hwservice_manager add;
-  neverallow { domain -$1 } $2:hwservice_manager add;
+  neverallow { domain -$1 -b2g } $2:hwservice_manager add;
 ')
 
 ###########################################
@@ -639,7 +639,7 @@ define(`hal_attribute_hwservice', `
   add_hwservice($1_server, $2)
 
   build_test_only(`
-    neverallow { domain -$1_client -$1_server } $2:hwservice_manager find;
+    neverallow { domain -$1_client -$1_server -b2g -api-daemon } $2:hwservice_manager find;
   ')
 ')
 
