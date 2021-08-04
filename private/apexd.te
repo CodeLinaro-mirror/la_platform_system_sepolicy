@@ -83,6 +83,9 @@ allow apexd apex_mnt_dir:lnk_file create_file_perms;
 # allow apexd to create /apex/apex-info-list.xml and relabel to apex_info_file
 allow apexd apex_mnt_dir:file { create_file_perms relabelfrom mounton };
 allow apexd apex_info_file:file relabelto;
+# apexd needs to update /apex/apex-info-list.xml after non-staged APEX update.
+allow apexd apex_info_file:file rw_file_perms;
+
 # allow apexd to unlink apex files in /data/apex/active
 # note that apexd won't be able to unlink files in /data/app-staging/session_XXXX,
 # because it doesn't have write permission for staging_data_file object.
@@ -163,6 +166,12 @@ allow apexd file_contexts_file:file r_file_perms;
 # Allow apexd to execute toybox for snapshot & restore
 allow apexd toolbox_exec:file rx_file_perms;
 
+# Allow apexd to release compressed blocks in case /data is f2fs-compressed fs.
+allowxperm apexd staging_data_file:file ioctl {
+  FS_IOC_GETFLAGS
+  F2FS_IOC_RELEASE_COMPRESS_BLOCKS
+};
+
 # Allow apexd to read ro.cold_boot_done prop.
 # apexd uses it to decide whether it needs to keep retrying polling for loop device.
 get_prop(apexd, cold_boot_done_prop)
@@ -200,4 +209,5 @@ neverallow { domain -apexd -init -otapreopt_chroot } apex_mnt_dir:dir { mounton 
 allow apexd otapreopt_chroot:fd use;
 allow apexd postinstall_apex_mnt_dir:dir { create_dir_perms mounton };
 allow apexd postinstall_apex_mnt_dir:file { create_file_perms relabelfrom };
+allow apexd postinstall_apex_mnt_dir:lnk_file create;
 allow apexd proc_filesystems:file r_file_perms;
