@@ -128,6 +128,9 @@ def GetCoreDomains():
             if (MatchPathPrefix(path, "/vendor") or
                     MatchPathPrefix(path, "/system/vendor")):
                 alldomains[d].fromVendor = True
+            # Treble sepolicy change to add early_services enrtrypoint
+            if MatchPathPrefix(path, "/early_services"):
+                continue
 
 ###
 # Add the entrypoint type and path(s) to each domain.

@@ -332,6 +332,7 @@ LOCAL_MODULE := selinux_policy_nonsystem
 ifneq ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
 LOCAL_REQUIRED_MODULES += \
     precompiled_sepolicy \
+    precompiled_early_sepolicy \
     precompiled_sepolicy.plat_sepolicy_and_mapping.sha256 \
     precompiled_sepolicy.system_ext_sepolicy_and_mapping.sha256 \
     system_ext_sepolicy_and_mapping.sha256 \
@@ -346,6 +347,7 @@ endif # ($(PRODUCT_PRECOMPILED_SEPOLICY),false)
 LOCAL_REQUIRED_MODULES += \
     plat_pub_versioned.cil \
     vendor_sepolicy.cil \
+    early_sepolicy.cil \
     plat_sepolicy_vers.txt \
 
 LOCAL_REQUIRED_MODULES += \
@@ -470,7 +472,7 @@ policy_files := $(call build_policy, $(sepolicy_build_files), \
   $(PLAT_PUBLIC_POLICY) $(PLAT_PRIVATE_POLICY) $(PLAT_VENDOR_POLICY) \
   $(SYSTEM_EXT_PUBLIC_POLICY) $(SYSTEM_EXT_PRIVATE_POLICY) \
   $(PRODUCT_PUBLIC_POLICY) $(PRODUCT_PRIVATE_POLICY) \
-  $(BOARD_VENDOR_SEPOLICY_DIRS) $(BOARD_ODM_SEPOLICY_DIRS))
+  $(BOARD_VENDOR_SEPOLICY_DIRS) $(BOARD_ODM_SEPOLICY_DIRS) $(BOARD_EARLY_EXTRA_SEPOLICY_DIRS))
 sepolicy_policy_2.conf := $(intermediates)/policy_2.conf
 $(sepolicy_policy_2.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
 $(sepolicy_policy_2.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
@@ -1026,6 +1028,61 @@ vendor_policy.conf :=
 
 #################################
 include $(CLEAR_VARS)
+#early_sepolicy.cil - the early sepolicy.This needs attributization and to be combined
+# with the platform-provided policy.  It makes use of the reqd_policy_mask files from private
+# policy and the platform public policy files in order to use checkpolicy.
+
+LOCAL_MODULE := early_sepolicy.cil
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_VENDOR_MODULE := true
+LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+policy_files := $(call build_policy, $(sepolicy_build_files), \
+  $(PLAT_PUBLIC_POLICY) $(SYSTEM_EXT_PUBLIC_POLICY) $(PRODUCT_PUBLIC_POLICY) \
+  $(REQD_MASK_POLICY) $(PLAT_VENDOR_POLICY) $(BOARD_EARLY_EXTRA_SEPOLICY_DIRS))
+early_extra_policy.conf := $(intermediates)/early_extra_policy.conf
+$(early_extra_policy.conf): PRIVATE_MLS_SENS := $(MLS_SENS)
+$(early_extra_policy.conf): PRIVATE_MLS_CATS := $(MLS_CATS)
+$(early_extra_policy.conf): PRIVATE_TARGET_BUILD_VARIANT := $(TARGET_BUILD_VARIANT)
+$(early_extra_policy.conf): PRIVATE_TGT_ARCH := $(my_target_arch)
+$(early_extra_policy.conf): PRIVATE_TGT_WITH_ASAN := $(with_asan)
+$(early_extra_policy.conf): PRIVATE_TGT_WITH_NATIVE_COVERAGE := $(with_native_coverage)
+$(early_extra_policy.conf): PRIVATE_ADDITIONAL_M4DEFS := $(LOCAL_ADDITIONAL_M4DEFS)
+$(early_extra_policy.conf): PRIVATE_SEPOLICY_SPLIT := $(PRODUCT_SEPOLICY_SPLIT)
+$(early_extra_policy.conf): PRIVATE_COMPATIBLE_PROPERTY := $(PRODUCT_COMPATIBLE_PROPERTY)
+$(early_extra_policy.conf): PRIVATE_TREBLE_SYSPROP_NEVERALLOW := $(treble_sysprop_neverallow)
+$(early_extra_policy.conf): PRIVATE_POLICY_FILES := $(policy_files)
+$(early_extra_policy.conf): $(policy_files) $(M4)
+        $(transform-policy-to-conf)
+        $(hide) sed '/^\s*dontaudit.*;/d' $@ | sed '/^\s*dontaudit/,/;/d' > $@.dontaudit
+
+$(LOCAL_BUILT_MODULE): PRIVATE_POL_CONF := $(early_extra_policy.conf)
+$(LOCAL_BUILT_MODULE): PRIVATE_REQD_MASK := $(reqd_policy_mask.cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_BASE_CIL := $(pub_policy.cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_VERS := $(BOARD_SEPOLICY_VERS)
+$(LOCAL_BUILT_MODULE): PRIVATE_DEP_CIL_FILES := $(built_plat_cil) $(built_system_ext_cil) \
+$(built_product_cil) $(built_pub_vers_cil) $(built_plat_mapping_cil) \
+$(built_system_ext_mapping_cil) $(built_product_mapping_cil)
+$(LOCAL_BUILT_MODULE): PRIVATE_FILTER_CIL := $(built_pub_vers_cil)
+$(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/build_sepolicy \
+  $(early_extra_policy.conf) $(reqd_policy_mask.cil) $(pub_policy.cil) \
+  $(built_plat_cil) $(built_system_ext_cil) $(built_product_cil) \
+  $(built_pub_vers_cil) $(built_plat_mapping_cil) $(built_system_ext_mapping_cil) \
+  $(built_product_mapping_cil)
+        @mkdir -p $(dir $@)
+        $(hide) $(HOST_OUT_EXECUTABLES)/build_sepolicy -a $(HOST_OUT_EXECUTABLES) build_cil \
+                -i $(PRIVATE_POL_CONF) -m $(PRIVATE_REQD_MASK) -c $(CHECKPOLICY_ASAN_OPTIONS) \
+                -b $(PRIVATE_BASE_CIL) -d $(PRIVATE_DEP_CIL_FILES) -f $(PRIVATE_FILTER_CIL) \
+                -t $(PRIVATE_VERS) -p $(POLICYVERS) -o $@
+
+built_early_extra_cil := $(LOCAL_BUILT_MODULE)
+early_extra_policy.conf :=
+
+################################
+include $(CLEAR_VARS)
 
 ifdef BOARD_ODM_SEPOLICY_DIRS
 # odm_policy.cil - the odm sepolicy. This needs attributization and to be combined
@@ -1245,6 +1302,57 @@ include $(BUILD_SYSTEM)/base_rules.mk
 $(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := $(built_product_cil) $(built_product_mapping_cil)
 $(LOCAL_BUILT_MODULE): $(built_precompiled_sepolicy) $(built_product_cil) $(built_product_mapping_cil)
 	cat $(PRIVATE_CIL_FILES) | sha256sum | cut -d' ' -f1 > $@
+
+#################################
+include $(CLEAR_VARS)
+LOCAL_MODULE := precompiled_early_sepolicy
+LOCAL_MODULE_CLASS := ETC
+LOCAL_MODULE_TAGS := optional
+LOCAL_VENDOR_MODULE := true
+
+ifeq ($(BOARD_USES_ODMIMAGE),true)
+        LOCAL_MODULE_PATH := $(TARGET_OUT_ODM)/etc/selinux
+else
+        LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/selinux
+endif
+
+include $(BUILD_SYSTEM)/base_rules.mk
+
+all_cil_files := \
+    $(built_plat_cil) \
+    $(built_plat_mapping_cil) \
+    $(built_pub_vers_cil) \
+    $(built_vendor_cil) \
+    $(built_early_extra_cil)
+
+ifdef HAS_SYSTEM_EXT_SEPOLICY
+        all_cil_files += $(built_system_ext_cil)
+endif
+
+ifdef HAS_SYSTEM_EXT_PUBLIC_SEPOLICY
+        all_cil_files += $(built_system_ext_mapping_cil)
+endif
+
+ifdef HAS_PRODUCT_SEPOLICY
+        all_cil_files += $(built_product_cil)
+endif
+
+ifdef HAS_PRODUCT_PUBLIC_SEPOLICY
+        all_cil_files += $(built_product_mapping_cil)
+endif
+
+ifdef BOARD_ODM_SEPOLICY_DIRS
+        all_cil_files += $(built_odm_cil)
+endif
+
+$(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := $(all_cil_files)
+$(LOCAL_BUILT_MODULE): PRIVATE_NEVERALLOW_ARG := $(NEVERALLOW_ARG)
+$(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc $(all_cil_files) $(built_sepolicy_neverallows)
+        $(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $(PRIVATE_NEVERALLOW_ARG) \
+                $(PRIVATE_CIL_FILES) -o $@ -f /dev/null
+
+built_precompiled_early_sepolicy := $(LOCAL_BUILT_MODULE)
+all_cil_files :=
 
 #################################
 include $(CLEAR_VARS)
