@@ -1056,8 +1056,8 @@ $(early_extra_policy.conf): PRIVATE_COMPATIBLE_PROPERTY := $(PRODUCT_COMPATIBLE_
 $(early_extra_policy.conf): PRIVATE_TREBLE_SYSPROP_NEVERALLOW := $(treble_sysprop_neverallow)
 $(early_extra_policy.conf): PRIVATE_POLICY_FILES := $(policy_files)
 $(early_extra_policy.conf): $(policy_files) $(M4)
-        $(transform-policy-to-conf)
-        $(hide) sed '/^\s*dontaudit.*;/d' $@ | sed '/^\s*dontaudit/,/;/d' > $@.dontaudit
+	$(transform-policy-to-conf)
+	$(hide) sed '/^\s*dontaudit.*;/d' $@ | sed '/^\s*dontaudit/,/;/d' > $@.dontaudit
 
 $(LOCAL_BUILT_MODULE): PRIVATE_POL_CONF := $(early_extra_policy.conf)
 $(LOCAL_BUILT_MODULE): PRIVATE_REQD_MASK := $(reqd_policy_mask.cil)
@@ -1072,11 +1072,11 @@ $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/build_sepolicy \
   $(built_plat_cil) $(built_system_ext_cil) $(built_product_cil) \
   $(built_pub_vers_cil) $(built_plat_mapping_cil) $(built_system_ext_mapping_cil) \
   $(built_product_mapping_cil)
-        @mkdir -p $(dir $@)
-        $(hide) $(HOST_OUT_EXECUTABLES)/build_sepolicy -a $(HOST_OUT_EXECUTABLES) build_cil \
-                -i $(PRIVATE_POL_CONF) -m $(PRIVATE_REQD_MASK) -c $(CHECKPOLICY_ASAN_OPTIONS) \
-                -b $(PRIVATE_BASE_CIL) -d $(PRIVATE_DEP_CIL_FILES) -f $(PRIVATE_FILTER_CIL) \
-                -t $(PRIVATE_VERS) -p $(POLICYVERS) -o $@
+	@mkdir -p $(dir $@)
+	$(hide) $(HOST_OUT_EXECUTABLES)/build_sepolicy -a $(HOST_OUT_EXECUTABLES) build_cil \
+		-i $(PRIVATE_POL_CONF) -m $(PRIVATE_REQD_MASK) -c $(CHECKPOLICY_ASAN_OPTIONS) \
+		-b $(PRIVATE_BASE_CIL) -d $(PRIVATE_DEP_CIL_FILES) -f $(PRIVATE_FILTER_CIL) \
+		-t $(PRIVATE_VERS) -p $(POLICYVERS) -o $@
 
 built_early_extra_cil := $(LOCAL_BUILT_MODULE)
 early_extra_policy.conf :=
@@ -1348,8 +1348,8 @@ endif
 $(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := $(all_cil_files)
 $(LOCAL_BUILT_MODULE): PRIVATE_NEVERALLOW_ARG := $(NEVERALLOW_ARG)
 $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc $(all_cil_files) $(built_sepolicy_neverallows)
-        $(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $(PRIVATE_NEVERALLOW_ARG) \
-                $(PRIVATE_CIL_FILES) -o $@ -f /dev/null
+	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $(PRIVATE_NEVERALLOW_ARG) \
+		$(PRIVATE_CIL_FILES) -o $@ -f /dev/null
 
 built_precompiled_early_sepolicy := $(LOCAL_BUILT_MODULE)
 all_cil_files :=
