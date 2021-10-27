@@ -988,6 +988,26 @@ precompiled_sepolicy_defaults {
     },
 }
 
+soong_config_module_type {
+    name: "precompiled_early_sepolicy_defaults",
+    module_type: "prebuilt_defaults",
+    config_namespace: "ANDROID",
+    bool_variables: ["BOARD_USES_ODMIMAGE"],
+    properties: ["vendor", "device_specific"],
+}
+
+precompiled_sepolicy_defaults {
+    name: "precompiled_early_sepolicy",
+    soong_config_variables: {
+        BOARD_USES_ODMIMAGE: {
+            device_specific: true,
+            conditions_default: {
+                vendor: true,
+            },
+        },
+    },
+}
+
 //////////////////////////////////
 // SHA-256 digest of the plat_sepolicy.cil and plat_mapping_file against
 // which precompiled_policy was built.
