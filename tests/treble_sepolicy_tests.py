@@ -115,6 +115,8 @@ def GetCoreDomains():
                 vendor = True
             elif MatchPathPrefix(path, "/system"):
                 system = True
+	    elif MatchPathPrefix(path, "/early_services"):
+                continue
 
             if not vendor and not system:
                 domain.error += "Unrecognized entrypoint for " + d + " at " + path + "\n"
