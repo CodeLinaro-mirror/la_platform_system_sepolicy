@@ -151,4 +151,5 @@
 #############################
 # ES
 #
+/early_services                                                               u:object_r:vendor_file:s0
 /vendor_early_services                                                        u:object_r:vendor_file:s0
