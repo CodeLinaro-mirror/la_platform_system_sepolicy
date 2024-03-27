@@ -298,6 +298,7 @@ userdebug_or_eng(`binder_call(system_server, profcollectd)')
 binder_call(system_server, statsd)
 binder_call(system_server, storaged)
 binder_call(system_server, update_engine)
+binder_call(system_server, virtual_camera)
 binder_call(system_server, vold)
 binder_call(system_server, logd)
 binder_call(system_server, wificond)
@@ -329,6 +330,7 @@ hal_client_domain(system_server, hal_omx)
 hal_client_domain(system_server, hal_power)
 hal_client_domain(system_server, hal_power_stats)
 hal_client_domain(system_server, hal_rebootescrow)
+hal_client_domain(system_server, hal_remotelyprovisionedcomponent_avf)
 hal_client_domain(system_server, hal_sensors)
 hal_client_domain(system_server, hal_tetheroffload)
 hal_client_domain(system_server, hal_thermal)
@@ -386,6 +388,7 @@ allow system_server {
   mediatuner
   netd
   sdcardd
+  servicemanager
   statsd
   surfaceflinger
   vold
@@ -478,6 +481,8 @@ allow system_server adbd_socket:sock_file rw_file_perms;
 allow system_server rtc_device:chr_file rw_file_perms;
 allow system_server audio_device:dir r_dir_perms;
 allow system_server uhid_device:chr_file rw_file_perms;
+allow system_server hidraw_device:dir r_dir_perms;
+allow system_server hidraw_device:chr_file rw_file_perms;
 
 # write access to ALSA interfaces (/dev/snd/*) needed for MIDI
 allow system_server audio_device:chr_file rw_file_perms;
@@ -1185,6 +1190,9 @@ allow system_server { fs_bpf fs_bpf_net_shared fs_bpf_netd_readonly fs_bpf_netd_
 allow system_server bpfloader:bpf { map_read map_write prog_run };
 # in order to invoke side effect of close() on such a socket calling synchronize_rcu()
 allow system_server self:key_socket create;
+# Java's Os.close() in libcore/luni/src/main/java/libcore/io/BlockGuardOs.java;l=100
+# calls if (fd.isSocket$()) if (isLingerSocket(fd)) ...
+dontaudit system_server self:key_socket getopt;
 
 # Allow system_server to start clatd in its own domain and kill it.
 domain_auto_trans(system_server, clatd_exec, clatd)
