@@ -435,3 +435,12 @@ allow init self:netlink_audit_socket { create_socket_perms_no_ioctl nlmsg_relay 
 
 # PRNG seeder daemon socket is created and listened on by init before forking.
 allow init prng_seeder:unix_stream_socket { create bind listen };
+
+# Allow init to load vendor modules
+r_dir_file(init, vendor_kernel_modules)
+allow init self:capability sys_module;
+allow init vendor_kernel_modules:system module_load;
+
+allow init tmpfs:chr_file relabelfrom;
+allow init kmsg_device:chr_file { getattr write relabelto };
+allow init kmsg_debug_device:chr_file { open write relabelto };

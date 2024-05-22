@@ -75,7 +75,7 @@
 # An unspecified isSdkSandboxAudit defaults to false.
 #
 # Precedence: entries are compared using the following rules, in the order shown
-# (see external/selinux/libselinux/src/android/android_platform.c,
+# (see external/selinux/libselinux/src/android/android_seapp.c,
 # seapp_context_cmp()).
 #       (1) isSystemServer=true before isSystemServer=false.
 #       (2) Specified isEphemeralApp= before unspecified isEphemeralApp=
@@ -184,7 +184,9 @@ user=system seinfo=platform domain=system_app type=system_app_data_file
 user=system seinfo=platform isPrivApp=true name=com.android.DeviceAsWebcam domain=device_as_webcam type=system_app_data_file levelFrom=all
 user=bluetooth seinfo=bluetooth domain=bluetooth type=bluetooth_data_file
 user=network_stack seinfo=network_stack domain=network_stack type=radio_data_file
+# NFC stack signed with platform cert needed for maintaining backwards comptibility for -next release config.
 user=nfc seinfo=platform domain=nfc type=nfc_data_file
+user=nfc seinfo=nfc domain=nfc type=nfc_data_file
 user=secure_element seinfo=platform domain=secure_element levelFrom=all
 user=radio seinfo=platform domain=radio type=radio_data_file
 user=shared_relro domain=shared_relro levelFrom=all
@@ -222,3 +224,4 @@ user=_app minTargetSdkVersion=26 domain=untrusted_app_27 type=app_data_file leve
 user=_app domain=untrusted_app_25 type=app_data_file levelFrom=user
 user=_app minTargetSdkVersion=28 fromRunAs=true domain=runas_app levelFrom=all
 user=_app fromRunAs=true domain=runas_app levelFrom=user
+user=_app isPrivApp=true name=com.android.virtualization.vmlauncher domain=vmlauncher_app type=privapp_data_file levelFrom=all
