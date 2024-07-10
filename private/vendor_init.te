@@ -15,6 +15,10 @@ get_prop(vendor_init, device_config_virtualization_framework_native_prop)
 # Let vendor_init use apex.<name>.ready to start services from vendor APEX
 get_prop(vendor_init, apex_ready_prop)
 
+# Let vendor_init read ro.fstype.data to process init.rc triggers
+# for this property
+get_prop(vendor_init, fstype_prop)
+
 # chown/chmod on devices, e.g. /dev/ttyHS0
 allow vendor_init {
   dev_type
@@ -216,6 +220,9 @@ allow vendor_init self:global_capability_class_set net_admin;
 
 # Write to /proc/sys/vm/page-cluster
 allow vendor_init proc_page_cluster:file w_file_perms;
+
+# Write to /proc/sys/vm/compaction_proactiveness
+allow vendor_init proc_compaction_proactiveness:file w_file_perms;
 
 # Write to sysfs nodes.
 allow vendor_init sysfs_type:dir r_dir_perms;
