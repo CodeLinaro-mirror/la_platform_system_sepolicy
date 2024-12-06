@@ -76,10 +76,9 @@ def TestNoUnmappedRmTypes(base_pub_policy, old_pub_policy, mapping):
     return ret
 
 def TestTrebleCompatMapping(base_pub_policy, old_pub_policy, mapping):
-    #ret = TestNoUnmappedNewTypes(base_pub_policy, old_pub_policy, mapping)
-    #ret += TestNoUnmappedRmTypes(base_pub_policy, old_pub_policy, mapping)
-    #return ret
-    return ""
+    ret = TestNoUnmappedNewTypes(base_pub_policy, old_pub_policy, mapping)
+    ret += TestNoUnmappedRmTypes(base_pub_policy, old_pub_policy, mapping)
+    return ret
 
 ###
 # extend OptionParser to allow the same option flag to be used multiple times.
