@@ -206,3 +206,6 @@ starting_at_board_api(202504, `
 /(vendor|system/vendor)/lib(64)?/libutils\.so u:object_r:same_process_hal_file:s0
 /(vendor|system/vendor)/lib(64)?/libutilscallstack\.so u:object_r:same_process_hal_file:s0
 /(vendor|system/vendor)/lib(64)?/libz\.so u:object_r:same_process_hal_file:s0
+
+# ES
+/vendor_early_services                                                        u:object_r:vendor_file:s0
