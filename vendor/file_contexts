@@ -210,3 +210,4 @@ starting_at_board_api(202504, `
 
 # ES
 /vendor_early_services                                                        u:object_r:vendor_file:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.virtualization\.capabilities\.capabilities_service-noop       u:object_r:hal_vm_capabilities_default_exec:s0
