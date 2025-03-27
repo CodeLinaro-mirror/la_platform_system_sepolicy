@@ -429,6 +429,9 @@ allow system_server {
   hal_sensors_server
   hal_vibrator_server
   hal_vr_server
+  hal_wifi_hostapd_server
+  hal_wifi_server
+  hal_wifi_supplicant_server
   system_suspend_server
 }:process { signal };
 
@@ -846,6 +849,9 @@ get_prop(system_server, boottime_prop)
 # Read device's serial number from system properties
 get_prop(system_server, serialno_prop)
 
+# Read whether uvc gadget is enabled
+get_prop(system_server, usb_uvc_enabled_prop)
+
 # Read/write the property which keeps track of whether this is the first start of system_server
 set_prop(system_server, firstboot_prop)
 
@@ -868,9 +874,6 @@ get_prop(system_server, gsid_prop)
 
 # Read the property that mocks an OTA
 get_prop(system_server, mock_ota_prop)
-
-# Read the property as feature flag for protecting apks with fs-verity.
-get_prop(system_server, apk_verity_prop)
 
 # Read wifi.interface
 get_prop(system_server, wifi_prop)
@@ -919,6 +922,9 @@ get_prop(system_server, sensors_config_prop)
 
 # Allow system server to determine if system services are enabled
 get_prop(system_server, system_service_enable_prop)
+
+# Allow system server to read shared mmd properties
+get_prop(system_server, mmd_shared_prop)
 
 # Create a socket for connections from debuggerd.
 allow system_server system_ndebug_socket:sock_file create_file_perms;
