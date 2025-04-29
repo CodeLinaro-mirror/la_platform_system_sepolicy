@@ -69,7 +69,8 @@ system_internal_prop(hidl_memory_prop)
 system_internal_prop(suspend_debug_prop)
 system_internal_prop(system_service_enable_prop)
 system_internal_prop(ctl_artd_pre_reboot_prop)
-
+system_internal_prop(trusty_security_vm_sys_prop)
+system_vendor_config_prop(asymmetric_prop)
 
 # Properties which can't be written outside system
 system_restricted_prop(bionic_linker_16kb_app_compat_prop)
