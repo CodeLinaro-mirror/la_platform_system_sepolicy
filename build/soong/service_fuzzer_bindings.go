@@ -11,6 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Changes from Qualcomm Technologies, Inc. are provided under the following license:
+// Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: BSD-3-Clause-Clear
 
 package selinux
 
@@ -223,6 +227,7 @@ var (
 		"binder_calls_stats":            EXCEPTION_NO_FUZZER,
 		"biometric":                     EXCEPTION_NO_FUZZER,
 		"bluetooth_manager":             EXCEPTION_NO_FUZZER,
+		"bluetooth_manager_ext":         EXCEPTION_NO_FUZZER,
 		"bluetooth":                     EXCEPTION_NO_FUZZER,
 		"broadcastradio":                EXCEPTION_NO_FUZZER,
 		"bugreport":                     EXCEPTION_NO_FUZZER,
