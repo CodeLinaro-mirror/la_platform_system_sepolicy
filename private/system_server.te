@@ -1733,3 +1733,6 @@ neverallow {
   -system_server
   -shell
 } power_debug_prop:property_service set;
+
+# Allow system server to access bluetooth property
+get_prop(system_server, bluetooth_prop)
