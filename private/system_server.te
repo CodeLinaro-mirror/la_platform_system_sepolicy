@@ -1821,3 +1821,6 @@ neverallow system_server self:global_capability_class_set sys_module;
 neverallow { domain -system_server -init } appsearch_data_file:file { open read write };
 
 neverallow system_server *:process ptrace;
+
+# Allow system server to access bluetooth property
+get_prop(system_server, bluetooth_prop)
