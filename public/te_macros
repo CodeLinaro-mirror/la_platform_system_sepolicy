@@ -75,7 +75,8 @@ allow $1 $2:{ file lnk_file } r_file_perms;
 # Allow access to a unique type for this domain when creating tmpfs / ashmem files.
 define(`tmpfs_domain', `
 type_transition $1 tmpfs:file $1_tmpfs;
-allow $1 $1_tmpfs:file { read write getattr map };
+allow $1 $1_tmpfs:file { read write getattr map ioctl };
+allowxperm $1 $1_tmpfs:file ioctl ashmem_ioctls;
 ')
 
 # pdx macros for IPC. pdx is a high-level name which contains transport-specific
@@ -243,7 +244,8 @@ typeattribute $1 appdomain;
 # Label tmpfs objects for all apps.
 type_transition $1 tmpfs:file appdomain_tmpfs;
 userfaultfd_use($1)
-allow $1 appdomain_tmpfs:file { execute getattr map read write };
+allow $1 appdomain_tmpfs:file { execute getattr map read write ioctl };
+allowxperm $1 appdomain_tmpfs:file ioctl ashmem_ioctls;
 neverallow { $1 -runas_app -shell -simpleperf } { domain -$1 }:file no_rw_file_perms;
 neverallow { appdomain -runas_app -shell -simpleperf -$1 } $1:file no_rw_file_perms;
 # The Android security model guarantees the confidentiality and integrity
@@ -597,7 +599,10 @@ define(`not_compatible_property', ifelse(target_compatible_property, `true', , $
 # Userdebug or eng builds
 # SELinux rules which apply only to userdebug or eng builds
 #
-define(`userdebug_or_eng', ifelse(target_build_variant, `eng', $1, ifelse(target_build_variant, `userdebug', $1)))
+define(`userdebug_or_eng', ifelse(target_build_variant, `eng', $1, ifelse(target_build_variant, `userdebug', $1,
+#
+# SUPPRESSED_BY_USERDEBUG_OR_ENG -- this marker is used by CTS -- do not modify
+)))
 
 #####################################
 # asan builds
@@ -616,6 +621,18 @@ define(`with_native_coverage', ifelse(target_with_native_coverage, `true', userd
 # SELinux rules which are verified during build, but not as part of *TS testing.
 #
 define(`build_test_only', ifelse(target_exclude_build_test, `true', , $1))
+
+#####################################
+# On physical devices
+# SELinux neverallow assertions that are enforced only on physical devices. It
+# can be used to support special requirements for virtual devices. This is
+# equivalent to the @RequiresDevice annotation in CTS.
+#
+define(`on_physical_device',
+# BEGIN_PHYSICAL_DEVICE_ONLY -- this marker is used by CTS -- do not modify
+$1
+# END_PHYSICAL_DEVICE_ONLY -- this marker is used by CTS -- do not modify
+)
 
 ####################################
 # Fallback crash handling for processes that can't exec crash_dump (e.g. because of seccomp).
