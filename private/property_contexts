@@ -1039,6 +1039,7 @@ ro.bootloader u:object_r:bootloader_prop:s0 exact string
 ro.bootmode   u:object_r:bootloader_prop:s0 exact string
 ro.hardware   u:object_r:bootloader_prop:s0 exact string
 ro.revision   u:object_r:bootloader_prop:s0 exact string
+ro.vendor.asymmetric_support  u:object_r:asymmetric_prop:s0 exact bool
 
 ro.boot.dynamic_partitions          u:object_r:exported_default_prop:s0 exact string
 ro.boot.dynamic_partitions_retrofit u:object_r:exported_default_prop:s0 exact string
