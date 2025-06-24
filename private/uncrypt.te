@@ -30,6 +30,11 @@ allow uncrypt self:global_capability_class_set sys_rawio;
 allow uncrypt misc_block_device:blk_file w_file_perms;
 allow uncrypt block_device:dir r_dir_perms;
 
+#Read /dev/block/misc device
+allow uncrypt misc_block_device:blk_file r_file_perms;
+get_prop(uncrypt, asymmetric_prop);
+get_prop(recovery, asymmetric_prop);
+
 # Access userdata block device.
 allow uncrypt userdata_block_device:blk_file w_file_perms;
 
