@@ -359,6 +359,7 @@ neverallow {
   domain
   -kernel
   -init
+  -vendor_init
   -ueventd
   -vold
 } self:global_capability_class_set mknod;
@@ -1058,7 +1059,7 @@ neverallow * self:process { execstack execheap };
 # and modification of executable pages are unsafe.
 neverallow { domain -untrusted_app_25 -untrusted_app_27 } file_type:file execmod;
 
-neverallow { domain -init } proc:{ file dir } mounton;
+neverallow { domain -init -vendor_init} proc:{ file dir } mounton;
 
 # Ensure that all types assigned to processes are included
 # in the domain attribute, so that all allow and neverallow rules
