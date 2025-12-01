@@ -143,4 +143,6 @@ class hwservice_manager
 class keystore_key              # userspace
 
 class drmservice                # userspace
+
+class dbus                      # userspace
 # FLASK

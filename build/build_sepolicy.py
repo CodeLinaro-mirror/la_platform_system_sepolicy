@@ -64,7 +64,7 @@ def do_build_cil(args):
     file_utils.make_parent_dirs(raw_cil_file)
     checkpolicy_cmd = [args.checkpolicy_env]
     checkpolicy_cmd += [os.path.join(args.android_host_path, 'checkpolicy'),
-                        '-C', '-M', '-c', args.policy_vers,
+                        '-C', '-D', '-M', '-c', args.policy_vers,
                         '-o', raw_cil_file, args.input_policy_conf]
     # Using shell=True to setup args.checkpolicy_env variables.
     run_host_command(' '.join(checkpolicy_cmd), shell=True)

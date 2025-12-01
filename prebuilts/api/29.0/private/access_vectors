@@ -744,3 +744,9 @@ class drmservice {
 
 class xdp_socket
 inherits socket
+
+class dbus
+{
+    send_msg
+    acquire_svc
+}

@@ -724,3 +724,9 @@ class drmservice {
 	finalizeDecryptUnit
 	pread
 }
+
+class dbus
+{
+    send_msg
+    acquire_svc
+}

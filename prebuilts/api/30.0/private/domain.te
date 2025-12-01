@@ -334,6 +334,7 @@ neverallow {
     -apexd
     recovery_only(`userdebug_or_eng(`-fastbootd')')
     -init
+    -vendor_init
     -kernel
     -otapreopt_chroot
     -recovery

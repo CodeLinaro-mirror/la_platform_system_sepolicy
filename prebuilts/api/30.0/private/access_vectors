@@ -739,3 +739,9 @@ class lockdown
 	integrity
 	confidentiality
 }
+
+class dbus
+{
+    send_msg
+    acquire_svc
+}
