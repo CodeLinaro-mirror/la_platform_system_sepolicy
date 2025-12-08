@@ -812,3 +812,9 @@ class tee_service
 {
 	use
 }
+
+class dbus
+{
+    send_msg
+    acquire_svc
+}
