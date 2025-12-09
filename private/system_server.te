@@ -281,6 +281,8 @@ allow system_server gpuservice:unix_stream_socket { read write setopt };
 # Communicate over a socket created by webview_zygote.
 allow system_server webview_zygote:unix_stream_socket { read write connectto setopt };
 
+allow system_server webview_zygote:process setsched;
+
 # Communicate over a socket created by app_zygote.
 allow system_server app_zygote:unix_stream_socket { read write connectto setopt };
 
