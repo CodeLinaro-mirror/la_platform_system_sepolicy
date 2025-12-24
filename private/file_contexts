@@ -37,7 +37,6 @@
 # Executables
 /init               u:object_r:init_exec:s0
 /sbin(/.*)?         u:object_r:rootfs:s0
-/system/bin/mk_loop   u:object_r:mk_loop_exec:s0
 
 # For kernel modules
 /lib(/.*)?          u:object_r:rootfs:s0
