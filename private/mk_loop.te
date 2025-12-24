@@ -1,6 +1,0 @@
-# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-# SPDX-License-Identifier: BSD-3-Clause-Clear
-
-type mk_loop, domain, coredomain;
-type mk_loop_exec, exec_type, file_type, system_file_type;
-init_daemon_domain(mk_loop)
