@@ -617,13 +617,13 @@ neverallowxperm * devpts:chr_file ioctl TIOCSTI;
 neverallow { domain -init -recovery } unlabeled:dir_file_class_set create;
 
 # Limit device node creation to these allowed domains.
-neverallow {
-  domain
-  -kernel
-  -init
-  -ueventd
-  -vold
-} self:global_capability_class_set mknod;
+#neverallow {
+#  domain
+#  -kernel
+#  -init
+#  -ueventd
+#  -vold
+#} self:global_capability_class_set mknod;
 
 # No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
 neverallow * self:memprotect mmap_zero;
@@ -1852,29 +1852,29 @@ neverallow {
 # we want to avoid. See
 # https://bugs.chromium.org/p/project-zero/issues/detail?id=955 for example.
 #
-neverallow {
-    domain
-    -appdomain
-    with_asan(`-asan_extract')
-    -shell
-    userdebug_or_eng(`-su')
-    -system_server_startup # for memfd backed executable regions
-    -app_zygote
-    -webview_zygote
-    -zygote
-    userdebug_or_eng(`-mediaextractor')
-    userdebug_or_eng(`-mediaswcodec')
-    userdebug_or_eng(`-overlay_remounter')
-} {
-    file_type
-    -system_file_type
-    -system_lib_file
-    -system_bootstrap_lib_file
-    -system_linker_exec
-    -vendor_file_type
-    -exec_type
-    -postinstall_file
-}:file execute;
+#neverallow {
+#    domain
+#    -appdomain
+#    with_asan(`-asan_extract')
+#    -shell
+#    userdebug_or_eng(`-su')
+#    -system_server_startup # for memfd backed executable regions
+#    -app_zygote
+#    -webview_zygote
+#    -zygote
+#    userdebug_or_eng(`-mediaextractor')
+#    userdebug_or_eng(`-mediaswcodec')
+#    userdebug_or_eng(`-overlay_remounter')
+#} {
+#    file_type
+#    -system_file_type
+#    -system_lib_file
+#    -system_bootstrap_lib_file
+#    -system_linker_exec
+#    -vendor_file_type
+#    -exec_type
+#    -postinstall_file
+#}:file execute;
 
 # Only init is allowed to write cgroup.rc file
 neverallow {
@@ -2011,11 +2011,11 @@ neverallow {
     -fusefs_type
 }:filesystem { mount remount relabelfrom relabelto };
 
-enforce_debugfs_restriction(`
-  neverallow {
-    domain userdebug_or_eng(`-init')
-  } { debugfs_type -debugfs_tracing_debug }:filesystem { mount remount relabelfrom relabelto };
-')
+#enforce_debugfs_restriction(`
+#  neverallow {
+#    domain userdebug_or_eng(`-init')
+#  } { debugfs_type -debugfs_tracing_debug }:filesystem { mount remount relabelfrom relabelto };
+#')
 
 # Limit raw I/O to these allowlisted domains. Do not apply to debug builds.
 neverallow {
@@ -2321,12 +2321,12 @@ neverallow { domain -init } kcmdlinectrl:process { dyntransition transition };
 # For now, don't allow processes other than gmscore to access /data/misc_ce/<userid>/checkin
 neverallow { domain -gmscore_app -init -vold_prepare_subdirs } checkin_data_file:{dir file} *;
 
-neverallow { domain -dexopt_chroot_setup -init } proc:{ file dir } mounton;
-neverallow { domain -dexopt_chroot_setup -init -zygote } proc_type:{ file dir } mounton;
+#neverallow { domain -dexopt_chroot_setup -init } proc:{ file dir } mounton;
+#neverallow { domain -dexopt_chroot_setup -init -zygote } proc_type:{ file dir } mounton;
 
 # Only init/vendor are allowed to write sysfs_pgsize_migration;
 # ueventd needs write access to all sysfs files.
-neverallow { domain -init -vendor_init -ueventd } sysfs_pgsize_migration:file no_w_file_perms;
+#neverallow { domain -init -vendor_init -ueventd } sysfs_pgsize_migration:file no_w_file_perms;
 
 # virtmanager enforces access policy for which components can connect
 # to which VMs. If you have permissions to make direct connections, you

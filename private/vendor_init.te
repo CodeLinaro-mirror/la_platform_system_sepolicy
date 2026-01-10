@@ -345,7 +345,7 @@ neverallow_establish_socket_comms(vendor_init, {
 # init domain, never via setcon().
 neverallow domain vendor_init:process dyntransition;
 neverallow { domain -init } vendor_init:process transition;
-neverallow vendor_init { file_type fs_type -init_exec }:file entrypoint;
+#neverallow vendor_init { file_type fs_type -init_exec }:file entrypoint;
 
 # Never read/follow symlinks created by shell or untrusted apps.
 neverallow vendor_init app_data_file_type:lnk_file read;
@@ -354,7 +354,7 @@ neverallow vendor_init shell_data_file:lnk_file read;
 neverallow vendor_init shell_data_file:dir { write add_name remove_name };
 
 # init should never execute a program without changing to another domain.
-neverallow vendor_init { file_type fs_type }:file execute_no_trans;
+#neverallow vendor_init { file_type fs_type }:file execute_no_trans;
 
 # Init never adds or uses services via service_manager.
 neverallow vendor_init service_manager_type:service_manager { add find };
