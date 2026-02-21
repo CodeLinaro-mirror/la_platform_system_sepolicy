@@ -134,7 +134,6 @@
 /dev/hwbinder		u:object_r:hwbinder_device:s0
 /dev/input(/.*)?	u:object_r:input_device:s0
 /dev/iio:device[0-9]+   u:object_r:iio_device:s0
-/dev/ion		u:object_r:ion_device:s0
 /dev/keychord   u:object_r:keychord_device:s0
 /dev/loop-control	u:object_r:loop_control_device:s0
 /dev/modem.*		u:object_r:radio_device:s0
@@ -226,6 +225,7 @@
 /dev/video[0-9]*	u:object_r:video_device:s0
 /dev/vndbinder		u:object_r:vndbinder_device:s0
 /dev/watchdog		u:object_r:watchdog_device:s0
+/dev/wrapfd		u:object_r:wrapfd_device:s0
 /dev/xt_qtaguid	u:object_r:qtaguid_device:s0
 /dev/zero		u:object_r:zero_device:s0
 /dev/__properties__ u:object_r:properties_device:s0
@@ -363,6 +363,7 @@
 /system/bin/flags_health_check -- u:object_r:flags_health_check_exec:s0
 /system/bin/idmap2(d)?              u:object_r:idmap_exec:s0
 /system/bin/update_engine           u:object_r:update_engine_exec:s0
+/system/bin/update_engine_nonetd    u:object_r:update_engine_exec:s0
 /system/bin/update_engine_nostats   u:object_r:update_engine_exec:s0
 /system/bin/profcollectd            u:object_r:profcollectd_exec:s0
 /system/bin/profcollectctl          u:object_r:profcollectd_exec:s0
@@ -869,6 +870,9 @@
 # storage area keys
 /data/misc_ce/[0-9]+/storage_area_keys(/.*)?           u:object_r:storage_area_key_file:s0
 
+# pmgd persistent storage
+/data/misc/pmgd(/.*)?           u:object_r:pmgd_data_file:s0
+
 # Backup service persistent per-user bookkeeping
 /data/system_ce/[0-9]+/backup(/.*)?		u:object_r:backup_data_file:s0
 # Backup service temporary per-user data for inter-change with apps
@@ -876,6 +880,9 @@
 
 # AppSearch files (https://developer.android.com/develop/ui/views/search/appsearch)
 /data/system_ce/[0-9]+/appsearch(/.*)?          u:object_r:appsearch_data_file:s0
+
+# AiSeal files
+/data/system_ce/[0-9]+/AiSeal(/.*)?          u:object_r:aiseal_data_file:s0
 
 #############################
 # efs files

@@ -253,9 +253,6 @@ no_debugfs_restriction(`
   allow system_server debugfs_wakeup_sources:file r_file_perms;
 ')
 
-# Read /sys/kernel/ion/*.
-allow system_server sysfs_ion:file r_file_perms;
-
 # Read /sys/kernel/dma_heap/*.
 allow system_server sysfs_dma_heap:file r_file_perms;
 
@@ -273,6 +270,9 @@ allow system_server fs_bpf_dmabuf:file { getattr open read };
 # Allow ActivityManager to look at the list of DMA-BUF heaps from /dev/dma_heap
 # for dumpsys meminfo
 allow system_server dmabuf_heap_device:dir r_dir_perms;
+
+# Allow NpuManager to access /dev/wrapfd
+allow system_server wrapfd_device:chr_file r_file_perms;
 
 # Allow reading /proc/vmstat for the oom kill count
 allow system_server proc_vmstat:file r_file_perms;
@@ -779,6 +779,9 @@ allow system_server wallpaper_file:file { rw_file_perms rename unlink };
 # Backup of wallpaper imagery uses temporary hard links to avoid data churn
 allow system_server { system_data_file wallpaper_file }:file link;
 
+# Allow system_server to set the label for the user.list file.
+allow system_server user_list_data_file:file relabelto;
+
 # ShortcutManager icons
 allow system_server system_data_file:dir relabelfrom;
 allow system_server shortcut_manager_icons:dir { create_dir_perms relabelto };
@@ -860,7 +863,6 @@ set_prop(system_server, device_config_lmkd_native_prop)
 set_prop(system_server, device_config_media_native_prop)
 set_prop(system_server, device_config_camera_native_prop)
 set_prop(system_server, device_config_mglru_native_prop)
-set_prop(system_server, device_config_pixel_faceauth_native_prop)
 set_prop(system_server, device_config_profcollect_native_boot_prop)
 set_prop(system_server, device_config_statsd_native_prop)
 set_prop(system_server, device_config_statsd_native_boot_prop)
@@ -1106,6 +1108,7 @@ userdebug_or_eng(`
   allow system_server profcollectd_service:service_manager find;
 ')
 allow system_server wifi_mainline_supplicant_service:service_manager find;
+allow system_server uprobestats_service:service_manager find;
 
 add_service(system_server, batteryproperties_service)
 
@@ -1266,7 +1269,6 @@ allow system_server preloads_media_file:dir { r_dir_perms write remove_name rmdi
 
 r_dir_file(system_server, cgroup)
 r_dir_file(system_server, cgroup_v2)
-allow system_server ion_device:chr_file r_file_perms;
 
 # Access to /dev/dma_heap/system
 allow system_server dmabuf_system_heap_device:chr_file r_file_perms;
@@ -1819,6 +1821,7 @@ binder_call(system_server, usbauthservice)
 # Allow system_server to access AiSeal VM
 is_flag_enabled(RELEASE_AISEAL_FRAMEWORK, `
     aiseal_use(system_server)
+    allow system_server aiseal_internal_service:service_manager find;
 ')
 
 # Allow system_server to talk to NPU scheduling service
