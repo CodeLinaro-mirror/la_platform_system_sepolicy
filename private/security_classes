@@ -178,3 +178,6 @@ class tee_service            		# userspace
 
 # dbus
 class dbus                      # userspace
+
+#For lv service
+class service
