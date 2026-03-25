@@ -106,6 +106,7 @@ phony {
         "plat_sepolicy.cil",
         "plat_sepolicy_genfs_202504.cil",
         "plat_sepolicy_genfs_202604.cil",
+        "plat_sepolicy_genfs_202704.cil",
         "plat_service_contexts",
         "secilc",
         "plat_31.0.cil",
@@ -142,6 +143,11 @@ system_ext_public_policy = [":se_build_files{.system_ext_public}"]
 system_ext_private_policy = [":se_build_files{.system_ext_private}"]
 product_public_policy = [":se_build_files{.product_public}"]
 product_private_policy = [":se_build_files{.product_private}"]
+vendor_policy = [
+    ":se_build_files{.plat_vendor}",
+    ":se_build_files{.vendor}",
+    ":ashmem_build_file",
+]
 
 // reqd_policy_mask - a policy.conf file which contains only the bare minimum
 // policy necessary to use checkpolicy.
@@ -407,6 +413,14 @@ se_versioned_policy {
     vendor: true,
 }
 
+filegroup {
+    name: "ashmem_build_file",
+    srcs: select(soong_config_variable("ANDROID", "TARGET_RESTRICTS_ASHMEM_USAGE"), {
+        false: ["vendor/ashmem/ashmem_allow.te"],
+        default: [],
+    }),
+}
+
 // vendor_policy.cil - the vendor sepolicy. This needs attributization and to be combined
 // with the platform-provided policy.  It makes use of the reqd_policy_mask files from private
 // policy and the platform public policy files in order to use checkpolicy.
@@ -416,16 +430,14 @@ se_policy_conf {
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
-        reqd_mask_policy + [
-            ":se_build_files{.plat_vendor}",
-            ":se_build_files{.vendor}",
-        ],
+        reqd_mask_policy +
+        vendor_policy,
     vendor: true,
     installable: false,
 }
 
 se_policy_cil {
-    name: "vendor_sepolicy.cil.raw",
+    name: "vendor_sepolicy.unversioned.cil",
     src: ":vendor_sepolicy.conf",
     filter_out: [":reqd_policy_mask.cil"],
     secilc_check: false, // will be done in se_versioned_policy module
@@ -436,7 +448,7 @@ se_policy_cil {
 se_versioned_policy {
     name: "vendor_sepolicy.cil",
     base: ":pub_policy.cil",
-    target_policy: ":vendor_sepolicy.cil.raw",
+    target_policy: ":vendor_sepolicy.unversioned.cil",
     version: "vendor",
     dependent_cils: [
         ":plat_sepolicy.cil",
@@ -458,21 +470,19 @@ se_policy_conf {
     srcs: plat_public_policy +
         system_ext_public_policy +
         product_public_policy +
-        reqd_mask_policy + [
-            ":se_build_files{.plat_vendor}",
-            ":se_build_files{.vendor}",
-            ":se_build_files{.odm}",
-        ],
+        reqd_mask_policy +
+        vendor_policy +
+        [":se_build_files{.odm}"],
     device_specific: true,
     installable: false,
 }
 
 se_policy_cil {
-    name: "odm_sepolicy.cil.raw",
+    name: "odm_sepolicy.unversioned.cil",
     src: ":odm_sepolicy.conf",
     filter_out: [
         ":reqd_policy_mask.cil",
-        ":vendor_sepolicy.cil.raw",
+        ":vendor_sepolicy.unversioned.cil",
     ],
     secilc_check: false, // will be done in se_versioned_policy module
     device_specific: true,
@@ -482,7 +492,7 @@ se_policy_cil {
 se_versioned_policy {
     name: "odm_sepolicy.cil",
     base: ":pub_policy.cil",
-    target_policy: ":odm_sepolicy.cil.raw",
+    target_policy: ":odm_sepolicy.unversioned.cil",
     version: "vendor",
     dependent_cils: [
         ":plat_sepolicy.cil",
@@ -715,11 +725,9 @@ se_policy_conf {
         system_ext_public_policy +
         system_ext_private_policy +
         product_public_policy +
-        product_private_policy + [
-            ":se_build_files{.plat_vendor}",
-            ":se_build_files{.vendor}",
-            ":se_build_files{.odm}",
-        ],
+        product_private_policy +
+        vendor_policy +
+        [":se_build_files{.odm}"],
     target_recovery: true,
     installable: false,
     recovery: true,
@@ -916,11 +924,9 @@ se_neverallow_test {
         system_ext_public_policy +
         system_ext_private_policy +
         product_public_policy +
-        product_private_policy + [
-            ":se_build_files{.plat_vendor}",
-            ":se_build_files{.vendor}",
-            ":se_build_files{.odm}",
-        ],
+        product_private_policy +
+        vendor_policy +
+        [":se_build_files{.odm}"],
 }
 
 //////////////////////////////////
@@ -1216,6 +1222,7 @@ phony {
         "plat_sepolicy.cil",
         "plat_sepolicy_genfs_202504.cil",
         "plat_sepolicy_genfs_202604.cil",
+        "plat_sepolicy_genfs_202704.cil",
         "plat_service_contexts",
         "plat_service_contexts_test",
         "searchpolicy",

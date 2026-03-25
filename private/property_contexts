@@ -324,7 +324,7 @@ persist.device_config.memory_safety_native_boot.    u:object_r:device_config_mem
 persist.device_config.memory_safety_native.         u:object_r:device_config_memory_safety_native_prop:s0
 persist.device_config.tethering_u_or_later_native.  u:object_r:device_config_tethering_u_or_later_native_prop:s0
 persist.device_config.mmd_native.                   u:object_r:device_config_mmd_native_prop:s0
-
+persist.device_config.memory_management_native_boot.  u:object_r:device_config_memory_management_native_boot_prop:s0
 # Prop indicates the apex that bundles input configuration files (*.idc,*.kl,*.kcm)
 input_device.config_file.apex    u:object_r:input_device_config_prop:s0 exact string
 
@@ -535,6 +535,7 @@ ro.camera.enableVirtualCamera      u:object_r:camera_config_prop:s0 exact bool
 ro.camera.disableHeicUltraHDR u:object_r:camera_config_prop:s0 exact bool
 ro.camera.enableSWHEVC        u:object_r:camera_config_prop:s0 exact bool
 ro.camera.resultFmqSize             u:object_r:camera_config_prop:s0 exact int
+ro.camera.default_app_social_media_parity_enabled u:object_r:camera_config_prop:s0 exact bool
 
 ro.camerax.extensions.enabled u:object_r:camerax_extensions_prop:s0 exact bool
 
@@ -1003,6 +1004,7 @@ drm.64bit.enabled            u:object_r:mediadrm_config_prop:s0 exact bool
 media.mediadrmservice.enable u:object_r:mediadrm_config_prop:s0 exact bool
 persist.drm.forcel3.enabled  u:object_r:drm_forcel3_prop:s0 exact bool
 
+drm.multi_binder.enabled u:object_r:drm_service_config_prop:s0 exact bool
 drm.service.enabled u:object_r:drm_service_config_prop:s0 exact bool
 
 dumpstate.dry_run u:object_r:exported_dumpstate_prop:s0 exact bool
@@ -1563,6 +1565,7 @@ ro.surface_flinger.prime_shader_cache.ultrahdr            u:object_r:surfaceflin
 ro.surface_flinger.game_default_frame_rate_override       u:object_r:surfaceflinger_prop:s0 exact int
 ro.surface_flinger.resync_on_tx_timeout                   u:object_r:surfaceflinger_prop:s0 exact int
 ro.surface_flinger.resync_on_choreographer_timeout        u:object_r:surfaceflinger_prop:s0 exact int
+ro.surface_flinger.force_hole_punch                       u:object_r:surfaceflinger_prop:s0 exact bool
 
 ro.sf.disable_triple_buffer u:object_r:surfaceflinger_prop:s0 exact bool
 ro.sf.lcd_density           u:object_r:surfaceflinger_prop:s0 exact int
