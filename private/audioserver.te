@@ -28,6 +28,8 @@ userdebug_or_eng(`
   # ptrace to processes in the same domain for memory leak detection
   allow audioserver self:process ptrace;
 ')
+#Adding SELinux policy for audioserver domain
+allow audioserver self:capability sys_nice;
 
 add_service(audioserver, audioserver_service)
 allow audioserver activity_service:service_manager find;
