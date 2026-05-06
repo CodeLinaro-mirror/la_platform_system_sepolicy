@@ -171,10 +171,12 @@ class keystore2_key             # userspace
 class diced                     # userspace
 
 class drmservice                # userspace
-# FLASK
 
 # Permissions for VMs to access SMC services
 class tee_service            		# userspace
 
 # dbus
 class dbus                      # userspace
+
+#For lv service
+class service

@@ -167,4 +167,9 @@ class keystore2_key             # userspace
 class diced                     # userspace
 
 class drmservice                # userspace
+
 # FLASK
+class dbus                      # userspace
+
+#For lv service
+class service
