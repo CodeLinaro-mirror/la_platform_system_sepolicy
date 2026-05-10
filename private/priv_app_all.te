@@ -183,6 +183,7 @@ allow priv_app_all staging_data_file:file r_file_perms;
 # Required for Phonesky to be able to read staged files under /data/app-staging.
 allow priv_app_all staging_data_file:dir r_dir_perms;
 # data APEXes are moved to device-mapped block files
+allow priv_app_all block_device:dir search;
 allow priv_app_all apex_dm_device:blk_file r_file_perms;
 
 # Allow com.android.vending to access files under vendor/apex as well as system apex files.
@@ -200,6 +201,11 @@ domain_auto_trans(priv_app_all, rs_exec, rs)
 # within an application home directory. Such shared libraries would be
 # created by things like renderscript or via other mechanisms.
 allow priv_app_all app_exec_data_file:file { r_file_perms execute unlink };
+
+# Allow priv_app to read pcc_data_file via passed FDs only.
+# This is to facilitate data sharing with PCC trusted components
+# 'open', 'write', and directory traversal permissions are deliberately omitted.
+allow priv_app_all pcc_data_file:file { getattr read map ioctl lock };
 
 # Allow privileged apps to create a VM. Note that access is still
 # guarded with the `android.permission.MANAGE_VIRTUAL_MACHINE`
@@ -298,3 +304,8 @@ neverallow priv_app_all *:{
 # Disallow sending RTM_GETLINK messages on netlink sockets.
 neverallow priv_app_all domain:netlink_route_socket { bind nlmsg_readpriv };
 neverallowxperm priv_app_all domain:netlink_route_socket nlmsg RTM_GETLINK;
+
+# Structurally guarantee priv_app cannot open, write, mutate PCC storage or traverse PCC directory
+neverallow priv_app_all pcc_data_file:file { open write append create rename setattr unlink };
+neverallow priv_app_all pcc_data_file:dir *;
+
