@@ -641,3 +641,12 @@ neverallow {
 
 ###Mediaserverwrapper 64 Bit Property  addition
 get_prop(domain, vendor_medsrv_set_64b)
+
+# Allow reading /sys/kernel/mm/pgsize_migration/enabled
+allow domain sysfs_pgsize_migration:dir search;
+allow domain sysfs_pgsize_migration:file r_file_perms;
+
+# Only init/vendor are allowed to write sysfs_pgsize_migration;
+# ueventd needs write access to all sysfs files.
+neverallow { domain -init -vendor_init -ueventd } sysfs_pgsize_migration:file no_w_file_perms;
+
