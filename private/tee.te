@@ -1,2 +1,9 @@
 allow tee fingerprint_vendor_data_file:dir rw_dir_perms;
 allow tee fingerprint_vendor_data_file:file create_file_perms;
+
+#dont audit
+dontaudit tee device:chr_file { read write };
+dontaudit tee device:blk_file { read write };
+dontaudit tee block_device:blk_file { read write};
+dontaudit tee tmpfs:blk_file read;
+dontaudit tee tmpfs:dir read;
