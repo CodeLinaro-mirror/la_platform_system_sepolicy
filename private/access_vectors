@@ -370,14 +370,6 @@ class security
 
 class system
 {
-	status
-	start
-	stop
-	reload
-	enable
-	halt
-	reboot
-	exit
 	ipc_info
 	syslog_read
 	syslog_mod
@@ -819,19 +811,4 @@ class user_namespace
 class tee_service
 {
 	use
-}
-
-class dbus
-{
-    send_msg
-    acquire_svc
-}
-
-#for  lv service
-class service {
-    start
-    stop
-    status
-    reload
-    enable
 }

@@ -351,7 +351,6 @@ neverallow {
   domain
   -kernel
   -init
-  -vendor_init
   -ueventd
   -vold
 } self:global_capability_class_set mknod;
