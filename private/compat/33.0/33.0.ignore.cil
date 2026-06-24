@@ -92,4 +92,12 @@
     zoned_block_device
     future_pm_prop
     vfio_device
+    nsfs
+    vendor_display_notch_prop
+    vendor_qvirtmgr_prop
+    vendor_sys_qti_display
+    cartelemetryd
+    cartelemetryd_service
+    sdv_ethernet_ready_prop
+    sdv_gateway_service
   ))

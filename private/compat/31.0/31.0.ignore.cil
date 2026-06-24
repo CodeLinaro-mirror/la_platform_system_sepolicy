@@ -49,4 +49,12 @@
     vendor_vm_file
     vendor_vm_data_file
     virtual_device_service
+    nsfs
+    vendor_display_notch_prop
+    vendor_qvirtmgr_prop
+    vendor_sys_qti_display
+    cartelemetryd
+    cartelemetryd_service
+    sdv_ethernet_ready_prop
+    sdv_gateway_service
   ))
