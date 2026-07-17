@@ -54,8 +54,4 @@
     enable_16k_pages_prop
     proc_cgroups
     media_quality_service
-    nsfs
-    vendor_display_notch_prop
-    vendor_qvirtmgr_prop
-    vendor_sys_qti_display
   ))
