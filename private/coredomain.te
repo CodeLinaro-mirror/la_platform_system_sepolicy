@@ -153,6 +153,7 @@ full_treble_only(`
     -ueventd
     is_flag_enabled(RELEASE_AVF_ENABLE_DEVICE_ASSIGNMENT, `-vfio_handler')
     -vold
+    -kernel
   } sysfs:file no_rw_file_perms;
 
   # /dev
@@ -162,6 +163,7 @@ full_treble_only(`
     -fsck
     -init
     -ueventd
+    -kernel
   } device:{ blk_file file } no_rw_file_perms;
 
   # debugfs

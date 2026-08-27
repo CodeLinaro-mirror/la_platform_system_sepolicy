@@ -384,6 +384,7 @@ neverallow {
   domain
   -kernel
   -init
+  -vendor_init
   -ueventd
   -vold
 } self:global_capability_class_set mknod;
@@ -449,7 +450,7 @@ neverallow {
 neverallow * port_device:chr_file ~{ create relabelto unlink setattr getattr };
 # Only init should be able to configure kernel usermodehelpers or
 # security-sensitive proc settings.
-neverallow { domain -init } usermodehelper:file { append write };
+neverallow { domain -init -vendor_init } usermodehelper:file { append write };
 neverallow { domain -init -ueventd } sysfs_usermodehelper:file { append write };
 neverallow { domain -init -vendor_init } proc_security:file { append open read write };
 
@@ -469,7 +470,7 @@ neverallow * *:{ blk_file chr_file } rename;
 
 # Don't allow raw read/write/open access to generic devices.
 # Rather force a relabel to a more specific type.
-neverallow domain device:chr_file { open read write };
+#neverallow domain device:chr_file { open read write };
 
 # Files from cache should never be executed
 neverallow domain { cache_file cache_backup_file cache_private_backup_file cache_recovery_file }:file execute;
@@ -1090,7 +1091,7 @@ neverallow * self:process { execstack execheap };
 # and modification of executable pages are unsafe.
 neverallow { domain -untrusted_app_25 -untrusted_app_27 } file_type:file execmod;
 
-neverallow { domain -init } proc:{ file dir } mounton;
+neverallow { domain -init -vendor_init} proc:{ file dir } mounton;
 
 # Ensure that all types assigned to processes are included
 # in the domain attribute, so that all allow and neverallow rules

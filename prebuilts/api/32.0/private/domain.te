@@ -361,6 +361,7 @@ neverallow {
     -apexd
     recovery_only(`-fastbootd')
     -init
+    -vendor_init
     -kernel
     -otapreopt_chroot
     -recovery
@@ -499,7 +500,7 @@ neverallow domain mlsvendorcompat:process fork;
 
 # Only init and otapreopt_chroot should be mounting filesystems on locations
 # labeled system or vendor (/product and /vendor respectively).
-neverallow { domain -init -otapreopt_chroot } { system_file_type vendor_file_type }:dir_file_class_set mounton;
+neverallow { domain -init -vendor_init -otapreopt_chroot } { system_file_type vendor_file_type }:dir_file_class_set mounton;
 
 # Only allow init and vendor_init to read/write mm_events properties
 # NOTE: dumpstate is allowed to read any system property
